@@ -1,51 +1,78 @@
-# J.A.R.V.I.S. — AI Voice Assistant
+# J.A.R.V.I.S — AI Voice Assistant
 
-> **J.A.R.V.I.S.** is a modern AI-powered personal voice assistant designed to provide natural conversational interaction through text and voice.
+> **J.A.R.V.I.S** — Intelligent Voice Assistant for natural AI conversations, voice interaction, memory, speech recognition, text-to-speech, and web search.
 
 🌐 **Live Website:** https://jarvisaiassistantvoice.netlify.app/
 
 ---
 
-## 🤖 About J.A.R.V.I.S.
+## 🤖 About J.A.R.V.I.S
 
-J.A.R.V.I.S. is an AI-powered personal assistant that combines conversational AI, speech recognition, text-to-speech, web search, and device-scoped memory into a single interactive interface.
+J.A.R.V.I.S is a modern AI-powered personal voice assistant designed to provide natural, conversational interaction through both **text and voice**.
 
-The goal of the project is to create a futuristic assistant experience where users can communicate naturally using either **text or voice**.
+The system combines:
 
-J.A.R.V.I.S. can understand user requests, generate intelligent responses, remember user-provided information on the current device, and respond using synthesized voice.
+- Artificial Intelligence
+- Speech-to-Text (STT)
+- Text-to-Speech (TTS)
+- Device-scoped memory
+- Conversational history
+- Web search capabilities
+- Voice interaction
+- Responsive modern UI
+- Real-time assistant status
+- Secure server-side API handling
+
+J.A.R.V.I.S is designed to feel like a personal digital assistant rather than a simple chatbot.
 
 ---
 
-## ✨ Features
+## 🌐 Live Application
+
+**J.A.R.V.I.S Web Assistant**
+
+https://jarvisaiassistantvoice.netlify.app/
+
+The application can be accessed directly through a modern web browser on desktop and mobile devices.
+
+---
+
+## ✨ Main Features
+
+### 🧠 AI Conversation
+
+J.A.R.V.I.S provides natural AI-powered conversations through a modern chat interface.
+
+Users can:
+
+- Ask questions
+- Have normal conversations
+- Request explanations
+- Ask for assistance
+- Continue previous conversations
+- Interact using text or voice
+
+The AI response system is designed to maintain a consistent assistant personality while keeping sensitive backend implementation details private.
+
+---
 
 ### 🎙️ Voice Assistant
 
-- Voice-based interaction
-- Speech-to-Text (STT)
-- AI-powered response generation
-- Text-to-Speech (TTS)
-- Automatic voice playback
-- Voice interruption support
-- Speaking and listening state management
-- Handles TTS failures gracefully
-
-### 💬 AI Chat
-
-- Natural conversational interaction
-- Context-aware responses
-- Text and voice interaction through the same AI pipeline
-- Intelligent command handling
-
-### 🧠 Device-Scoped Memory
-
-J.A.R.V.I.S. supports persistent memory for user-provided information.
-
-Memory is isolated per device/browser.
-
-For example:
+J.A.R.V.I.S supports voice interaction through a complete voice pipeline:
 
 ```text
-Device A
-User: My name is Hashan
-
-J.A.R.V.I.S.: Got it. I'll remember your name as Hashan.
+User Voice
+    ↓
+Microphone
+    ↓
+Speech-to-Text
+    ↓
+AI Conversation
+    ↓
+AI Response
+    ↓
+Text-to-Speech
+    ↓
+Audio Playback
+    ↓
+J.A.R.V.I.S Speaks
