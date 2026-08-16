@@ -1,6 +1,8 @@
 import { BOOT_STAGES } from "../../hooks/useBootSequence";
 import type { BootSequenceState } from "../../hooks/useBootSequence";
 
+const DIAGNOSTICS_INDEX = BOOT_STAGES.findIndex((s) => s.key === "diagnostics");
+
 interface BootSequenceProps {
   state: BootSequenceState;
 }
@@ -84,7 +86,7 @@ export function BootSequence({ state }: BootSequenceProps) {
               return (
                 <div
                   key={stage.key}
-                  className="hud-mono flex w-full items-center justify-between text-[10px] tracking-[0.18em] text-[var(--jarvis-text-dim)] animate-fade-in"
+                  className="hud-mono relative flex w-full items-center justify-between text-[10px] tracking-[0.18em] text-[var(--jarvis-text-dim)] animate-fade-in"
                 >
                   <span className="flex items-center gap-2">
                     <span
@@ -100,6 +102,20 @@ export function BootSequence({ state }: BootSequenceProps) {
                   <span className={phase === "done" ? "text-[var(--jarvis-ok)]" : "text-[var(--jarvis-text-faint)]"}>
                     {phase === "done" ? stage.doneLabel : stage.activeLabel}
                   </span>
+                  {i === DIAGNOSTICS_INDEX && phase === "active" && (
+                    <span className="absolute -bottom-2.5 left-0 flex gap-1" aria-hidden>
+                      {[1, 2, 3, 4].map((n) => (
+                        <span
+                          key={n}
+                          className="h-[3px] w-3 rounded-full transition-colors duration-300"
+                          style={{
+                            backgroundColor:
+                              state.diagnosticsTicks >= n ? "var(--jarvis-ok)" : "var(--jarvis-border-strong)",
+                          }}
+                        />
+                      ))}
+                    </span>
+                  )}
                 </div>
               );
             })}
