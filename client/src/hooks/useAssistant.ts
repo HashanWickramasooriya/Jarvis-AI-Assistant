@@ -10,6 +10,7 @@ import {
 import { useAudioRecorder } from "./useAudioRecorder";
 import { useMicLevel, useTtsLevel } from "./useAudioLevel";
 import { toHudMessage } from "../lib/errorMessages";
+import { prepareForSpeech } from "../lib/prepareSpeech";
 
 let voiceModeEnabled = true;
 
@@ -87,6 +88,19 @@ export function useAssistant() {
   const speak = useCallback(
     async (text: string) => {
       if (!voiceModeEnabled) return;
+      // Never call TTS with something that isn't real, speakable text —
+      // covers a defensive-programming gap, not a currently-reachable bug
+      // (every response path in this app already funnels through
+      // submitText -> speak(reply) with `reply` always a validated
+      // non-empty string from /api/chat).
+      if (typeof text !== "string" || !text.trim()) return;
+      // Speak the same words the UI shows, minus markdown syntax a voice
+      // would otherwise read literally ("asterisk asterisk...") — search-
+      // grounded and detailed answers routinely come back with **bold**,
+      // bullet lists, and links. The UI still renders the original text
+      // unchanged; only the TTS-bound copy is normalized.
+      const spokenText = prepareForSpeech(text);
+      if (!spokenText) return;
       // Claim ownership of playback before any await. A later speak() or
       // stopSpeaking() call bumps this past `mySeq`, and every checkpoint
       // below bails out the instant that happens rather than fighting a
@@ -94,7 +108,7 @@ export function useAssistant() {
       const mySeq = ++speechSeqRef.current;
       let url: string | null = null;
       try {
-        const blob = await synthesizeSpeech(text);
+        const blob = await synthesizeSpeech(spokenText);
         if (mySeq !== speechSeqRef.current) return; // superseded while fetching audio
 
         url = URL.createObjectURL(blob);
