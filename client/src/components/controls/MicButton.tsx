@@ -8,7 +8,12 @@ interface MicButtonProps {
 
 export function MicButton({ status, onToggle, disabled }: MicButtonProps) {
   const listening = status === "listening";
-  const busy = status === "processing" || status === "thinking" || status === "speaking";
+  // "speaking" is deliberately NOT disabling: clicking the mic while
+  // JARVIS is still talking is a barge-in — it interrupts the current
+  // response and starts a new recording (see useAssistant's
+  // startListening/toggleListening). Only mid-flight processing (no audio
+  // to interrupt yet) blocks the button.
+  const busy = status === "processing" || status === "thinking";
 
   return (
     <button

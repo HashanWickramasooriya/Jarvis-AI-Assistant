@@ -111,7 +111,37 @@ export async function tryHandleCommand(
     return { handled: true, reply: "Understood. I'll remember that." };
   }
 
+  // Bare name declarations ("My name is Kasun", "I'm Kasun", "Call me
+  // Kasun") must persist to this device's memory just like an explicit
+  // "remember that my name is Kasun" — without this, only the "remember"
+  // phrasing actually wrote anything, so introducing yourself any other
+  // way silently failed to save the name at all. Deliberately narrow (a
+  // single name-like token, no spaces) to avoid misfiring on unrelated
+  // sentences like "I'm going to the store".
+  const implicitName = parseImplicitName(text);
+  if (implicitName) {
+    if (!isMemoryAvailable() || !deviceId) return { handled: true, reply: memoryUnavailableMessage };
+    await rememberFact(deviceId, "identity", "name", implicitName, 4);
+    return { handled: true, reply: `Got it. I'll remember your name as ${implicitName}.` };
+  }
+
   return { handled: false };
+}
+
+const IMPLICIT_NAME_PATTERNS = [
+  /^my name is ([a-zA-Z][a-zA-Z'-]{0,30})\.?$/i,
+  /^i am ([a-zA-Z][a-zA-Z'-]{0,30})\.?$/i,
+  /^i'm ([a-zA-Z][a-zA-Z'-]{0,30})\.?$/i,
+  /^(?:you can |you may )?call me ([a-zA-Z][a-zA-Z'-]{0,30})\.?$/i,
+];
+
+function parseImplicitName(text: string): string | null {
+  const trimmed = text.trim();
+  for (const pattern of IMPLICIT_NAME_PATTERNS) {
+    const m = trimmed.match(pattern);
+    if (m) return capitalize(m[1]);
+  }
+  return null;
 }
 
 /**

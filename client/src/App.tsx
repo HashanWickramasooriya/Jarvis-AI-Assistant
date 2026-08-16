@@ -36,13 +36,17 @@ function App() {
     assistant.status === "processing" ||
     assistant.status === "thinking" ||
     assistant.status === "speaking";
+  // The mic button alone stays enabled while JARVIS is speaking, so a
+  // click can interrupt (barge-in) — see MicButton/useAssistant. Typed
+  // input stays gated by the full `busy` as before.
+  const micBusy = assistant.status === "processing" || assistant.status === "thinking";
 
   const backendDown = serviceStatus !== null && serviceStatus.network === "offline";
   const displayStatus = backendDown && assistant.status === "idle" ? "offline" : assistant.status;
 
   const micControls = (
     <div className="flex w-full max-w-lg items-center gap-3">
-      <MicButton status={assistant.status} onToggle={assistant.toggleListening} disabled={busy} />
+      <MicButton status={assistant.status} onToggle={assistant.toggleListening} disabled={micBusy} />
       <ChatInput ref={chatInputRef} onSubmit={assistant.submitText} disabled={busy} />
     </div>
   );

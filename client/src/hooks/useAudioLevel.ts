@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
 export interface MicLevelHandle {
@@ -64,14 +64,36 @@ export function useMicLevel(stream: MediaStream | null): MicLevelHandle {
   return { level, peakRef, resetPeak };
 }
 
+export interface TtsLevelHandle {
+  level: number;
+  /**
+   * Resumes the shared AudioContext if it's suspended, and resolves once
+   * that's settled (or immediately if there's no graph yet). MUST be
+   * awaited before calling audioEl.play() — see the note below.
+   */
+  ensureResumed: () => Promise<void>;
+}
+
 /**
  * Tracks a 0..1 amplitude level for a single, persistent HTMLAudioElement
  * used for TTS playback. The Web Audio API only allows a MediaElementSource
  * to be created once per element for its lifetime, so the analyser graph is
  * built lazily on first use and reused thereafter — only the RAF polling
  * loop starts/stops with `active`.
+ *
+ * Important: once createMediaElementSource(audioEl) runs, ALL of that
+ * element's audio output is rerouted through this Web Audio graph — it no
+ * longer plays directly. That graph only produces audible output while its
+ * AudioContext is "running"; a fresh AudioContext always starts
+ * "suspended" until resumed. Resuming was previously done reactively in a
+ * separate effect keyed off `active`, racing independently against
+ * audioEl.play() in useAssistant's speak() — play() can resolve
+ * successfully (no error, no rejection) while the context is still
+ * suspended, producing silent "playback" with no visible failure. Exposing
+ * ensureResumed() lets the caller await the resume in the same sequence as
+ * play(), closing that race.
  */
-export function useTtsLevel(audioEl: HTMLAudioElement | null, active: boolean): number {
+export function useTtsLevel(audioEl: HTMLAudioElement | null, active: boolean): TtsLevelHandle {
   const [level, setLevel] = useState(0);
   const graphRef = useRef<{ ctx: AudioContext; analyser: AnalyserNode } | null>(null);
 
@@ -112,5 +134,13 @@ export function useTtsLevel(audioEl: HTMLAudioElement | null, active: boolean): 
     return () => cancelAnimationFrame(frame);
   }, [active]);
 
-  return level;
+  const ensureResumed = useCallback(async () => {
+    const graph = graphRef.current;
+    if (!graph) return;
+    if (graph.ctx.state === "suspended") {
+      await graph.ctx.resume().catch(() => {});
+    }
+  }, []);
+
+  return { level, ensureResumed };
 }
