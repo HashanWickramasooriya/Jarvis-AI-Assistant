@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { BootSequence } from "./components/core/BootSequence";
 import { CoreFrame } from "./components/core/CoreFrame";
 import { StatusPanel } from "./components/panels/StatusPanel";
 import { StatusStrip } from "./components/panels/StatusStrip";
@@ -17,6 +18,7 @@ import { MobileMenu } from "./components/controls/MobileMenu";
 import { useAssistant } from "./hooks/useAssistant";
 import { useServiceStatus } from "./hooks/useServiceStatus";
 import { useMediaQuery } from "./hooks/useMediaQuery";
+import { useBootSequence } from "./hooks/useBootSequence";
 import { useJarvisStore } from "./state/store";
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
   const chatInputRef = useRef<ChatInputHandle>(null);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isWide = useMediaQuery("(min-width: 1280px)");
+  const bootState = useBootSequence(isDesktop, assistant.speak);
 
   const busy =
     assistant.status === "processing" ||
@@ -221,6 +224,8 @@ function App() {
         onClose={() => setDiagnosticsOpen(false)}
         level={assistant.level}
       />
+
+      <BootSequence state={bootState} />
     </div>
   );
 }

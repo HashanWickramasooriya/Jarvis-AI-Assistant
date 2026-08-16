@@ -311,5 +311,6 @@ export function useAssistant() {
     pendingAudioUrl,
     enableVoicePlayback,
     submitText,
+    speak,
   };
 }
