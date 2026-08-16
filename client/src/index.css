@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+:root {
+  /* Environment: near-black graphite / blue-black */
+  --jarvis-bg: #05070a;
+  --jarvis-bg-1: #080c10;
+  --jarvis-bg-2: #0c1117;
+  --jarvis-panel: #0a0e13;
+  --jarvis-metal: #101820;
+  --jarvis-metal-raised: #151c23;
+
+  /* Primary holographic accent: ice/electric cyan-blue */
+  --jarvis-accent: #4debff;
+  --jarvis-accent-bright: #7debff;
+  --jarvis-accent-deep: #2bb7ff;
+  --jarvis-accent-glow: rgba(77, 235, 255, 0.28);
+  --jarvis-accent-glow-soft: rgba(77, 235, 255, 0.1);
+
+  /* Secondary: soft white / silver / muted blue-gray */
+  --jarvis-steel: #9fb4c2;
+  --jarvis-steel-dim: rgba(159, 180, 194, 0.22);
+
+  /* Typography */
+  --jarvis-text: #eef4f7;
+  --jarvis-text-dim: #a9b7bf;
+  --jarvis-text-faint: #647079;
+
+  /* Borders */
+  --jarvis-border: rgba(255, 255, 255, 0.07);
+  --jarvis-border-accent: rgba(77, 235, 255, 0.16);
+  --jarvis-border-strong: rgba(255, 255, 255, 0.13);
+
+  /* Status semantics */
+  --jarvis-ok: #5be6c4;
+  --jarvis-warn: #e8b04d;
+  --jarvis-err: #ff5c5c;
+
+  --jarvis-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+.safe-x {
+  padding-left: max(env(safe-area-inset-left), 0px);
+  padding-right: max(env(safe-area-inset-right), 0px);
+}
+
+body {
+  background: var(--jarvis-bg);
+  background-image:
+    radial-gradient(ellipse 65% 45% at 50% 8%, rgba(77, 235, 255, 0.045), transparent 60%),
+    radial-gradient(ellipse 55% 35% at 50% 100%, rgba(43, 183, 255, 0.03), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+  background-size: auto, auto, 42px 42px, 42px 42px;
+  background-position: center;
+  color: var(--jarvis-text);
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Soft vignette to keep the technical grid from competing with the HUD */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 40%, rgba(2, 3, 5, 0.65) 100%);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--jarvis-accent-glow);
+}
+
+/* Panels: layered glass/metal with a hairline border and faint inner sheen */
+.hud-panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(21, 28, 35, 0.72), rgba(7, 10, 13, 0.92));
+  border: 1px solid var(--jarvis-border);
+  border-radius: var(--jarvis-radius);
+  backdrop-filter: blur(10px);
+}
+
+.hud-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.hud-panel-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--jarvis-text-faint);
+}
+
+.hud-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--jarvis-text-dim);
+}
+
+.hud-mono {
+  font-family: "SFMono-Regular", ui-monospace, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.hud-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--jarvis-border-strong);
+  border-radius: 3px;
+}
+.hud-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  border-color: var(--jarvis-border-accent);
+}
+.hud-corner-tl { top: -1px; left: -1px; border-top: 1px solid; border-left: 1px solid; }
+.hud-corner-tr { top: -1px; right: -1px; border-top: 1px solid; border-right: 1px solid; }
+.hud-corner-bl { bottom: -1px; left: -1px; border-bottom: 1px solid; border-left: 1px solid; }
+.hud-corner-br { bottom: -1px; right: -1px; border-bottom: 1px solid; border-right: 1px solid; }
+
+@keyframes hud-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+@keyframes hud-pulse-fast {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.4; }
+}
+@keyframes hud-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes hud-spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes hud-scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  15% { opacity: 0.8; }
+  85% { opacity: 0.8; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+@keyframes hud-flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 1; }
+  47% { opacity: 0.35; }
+  49% { opacity: 1; }
+}
+@keyframes hud-blink-caret {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+@keyframes hud-fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hud-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-breathe { animation: hud-breathe 4.5s ease-in-out infinite; }
+.animate-pulse-fast { animation: hud-pulse-fast 1.1s ease-out infinite; }
+.animate-spin-slow { animation: hud-spin-slow 16s linear infinite; }
+.animate-spin-reverse { animation: hud-spin-reverse 11s linear infinite; }
+.animate-flicker { animation: hud-flicker 2.6s ease-in-out infinite; }
+.animate-fade-in { animation: hud-fade-in 0.25s ease-out; }
+.animate-caret { animation: hud-blink-caret 1s step-end infinite; }

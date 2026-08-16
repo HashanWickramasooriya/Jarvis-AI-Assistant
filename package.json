@@ -1,0 +1,27 @@
+{
+  "name": "jarvis",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "J.A.R.V.I.S. personal AI system — monorepo root. Used by Vercel (api/index.ts) and Netlify (netlify/functions/api.ts) to resolve dependencies for the serverless API function; local development uses client/ and server/ directly (see README/report for dev commands).",
+  "scripts": {
+    "build": "npm install --prefix client && npm run build --prefix client",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^22.10.0",
+    "@vercel/node": "^3.2.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,27 @@
+[build]
+  base = "."
+  publish = "client/dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# API requests go to the Netlify Function wrapping the shared Express app.
+# Netlify preserves the original request path in the function's event, so
+# the Express app's existing "/api/..." route mounts work unmodified.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
+# SPA fallback: any other path serves index.html so client-side navigation
+# and hard refreshes never 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
