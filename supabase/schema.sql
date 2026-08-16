@@ -1,4 +1,4 @@
--- J.A.R.V.I.S. Supabase schema
+-- JARVIS Supabase schema
 -- Run this in the Supabase SQL editor (or via `supabase db push`).
 
 create extension if not exists "pgcrypto";

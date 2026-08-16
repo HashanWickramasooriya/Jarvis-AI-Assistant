@@ -112,7 +112,7 @@ export function SettingsPanel({ open, onClose, voiceMode, setVoiceMode }: Settin
           </div>
 
           <div className="border-t border-[var(--jarvis-border)] pt-4 text-center">
-            <div className="hud-label mb-1">J.A.R.V.I.S. — PERSONAL AI SYSTEM</div>
+            <div className="hud-label mb-1">JARVIS — PERSONAL AI SYSTEM</div>
             <div className="text-[10px] text-[var(--jarvis-text-faint)]">
               Designed &amp; developed by{" "}
               <a

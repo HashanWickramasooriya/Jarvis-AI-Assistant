@@ -33,7 +33,7 @@ export function ConversationPanel({ status }: ConversationPanelProps) {
         <div className="flex items-center gap-1.5 text-[9px] tracking-widest">
           <span className={`h-1.5 w-1.5 rounded-full ${aiOnline ? "bg-[var(--jarvis-ok)]" : "bg-[var(--jarvis-err)]"}`} />
           <span className={aiOnline ? "text-[var(--jarvis-ok)]" : "text-[var(--jarvis-err)]"}>
-            J.A.R.V.I.S. {aiOnline ? "ONLINE" : "OFFLINE"}
+            JARVIS {aiOnline ? "ONLINE" : "OFFLINE"}
           </span>
         </div>
       </div>
@@ -59,7 +59,7 @@ export function ConversationPanel({ status }: ConversationPanelProps) {
             <div key={m.id} className="animate-fade-in border-l border-[var(--jarvis-border-accent)] pl-3">
               <div className="mb-1 flex items-center gap-2 text-[9px] tracking-[0.2em] text-[var(--jarvis-accent-bright)]">
                 <span className="h-1 w-1 rounded-full bg-[var(--jarvis-accent)]" />
-                <span>J.A.R.V.I.S.</span>
+                <span>JARVIS</span>
                 <span className="text-[var(--jarvis-text-faint)]">{formatTime(m.created_at)}</span>
               </div>
               <div className="text-[15px] leading-relaxed text-[var(--jarvis-text)]">{m.message}</div>

@@ -1,8 +1,6 @@
 <div align="center">
 
-# ⚡ J.A.R.V.I.S.
-
-### **Just A Rather Very Intelligent System**
+# ⚡ JARVIS
 
 <p>
   <strong>🤖 A futuristic, voice-enabled personal AI assistant</strong>
@@ -34,9 +32,9 @@
 
 ---
 
-## 🧠 What is J.A.R.V.I.S.?
+## 🧠 What is JARVIS?
 
-**J.A.R.V.I.S.** is a full-stack personal AI assistant designed to provide a more immersive and natural way of interacting with artificial intelligence.
+**JARVIS** is a full-stack personal AI assistant designed to provide a more immersive and natural way of interacting with artificial intelligence.
 
 Instead of building another traditional chatbot, this project focuses on creating an **intelligent system experience** combining:
 

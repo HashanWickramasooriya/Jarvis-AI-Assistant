@@ -5,5 +5,5 @@ import { env } from "./env.js";
 // /api/index.ts instead, which imports `app` directly without listening
 // on a port.
 app.listen(env.PORT, () => {
-  console.log(`J.A.R.V.I.S. backend online at http://localhost:${env.PORT}`);
+  console.log(`JARVIS backend online at http://localhost:${env.PORT}`);
 });

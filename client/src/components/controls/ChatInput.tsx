@@ -31,7 +31,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
   return (
     <form onSubmit={handleSubmit} className="flex flex-1 items-center gap-2">
       <label htmlFor="jarvis-chat-input" className="sr-only">
-        Message J.A.R.V.I.S.
+        Message JARVIS
       </label>
       <input
         ref={inputRef}
@@ -40,7 +40,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
         value={value}
         onChange={(e) => setValue(e.target.value)}
         disabled={disabled}
-        placeholder="Message J.A.R.V.I.S..."
+        placeholder="Message JARVIS..."
         className="flex-1 rounded-sm border border-[var(--jarvis-border)] bg-[var(--jarvis-metal)] px-4 py-3 text-sm text-[var(--jarvis-text)] outline-none placeholder:text-[var(--jarvis-text-faint)] focus-visible:border-[var(--jarvis-accent)] disabled:opacity-40"
       />
       <button
