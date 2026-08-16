@@ -1,51 +1,84 @@
+export interface BootAudio {
+  /** Low tone rising to mid tone — played once, at the very start. */
+  playOpening: () => void;
+  /** A single soft, short blip — played at each system's "online" beat. */
+  playTick: () => void;
+  /** A brief ascending three-note confirmation — played once, at final ONLINE. */
+  playConfirmation: () => void;
+  /** Releases the shared AudioContext. Safe to call more than once. */
+  dispose: () => void;
+}
+
+const NOOP_BOOT_AUDIO: BootAudio = {
+  playOpening: () => {},
+  playTick: () => {},
+  playConfirmation: () => {},
+  dispose: () => {},
+};
+
 /**
- * A short, clean startup chime, synthesized with the Web Audio API rather
- * than shipped as a binary asset — no file to license/attribute, zero
- * bundle-size cost, no network/API request just to make a sound. Uses its
- * own short-lived AudioContext, entirely separate from the persistent
- * <audio> element + AudioContext the TTS pipeline owns (useAudioLevel.ts /
+ * Synthesizes the boot sequence's sound cues with the Web Audio API rather
+ * than shipping a binary asset — no file to license/attribute, zero
+ * bundle-size cost, no network/API request just to make a sound. One
+ * AudioContext is shared across the whole boot sequence and explicitly
+ * disposed when it ends, entirely separate from the persistent <audio>
+ * element + AudioContext the TTS pipeline owns (useAudioLevel.ts /
  * useAssistant.ts) — the two audio paths never touch, so this can never
  * interfere with TTS playback or its AudioContext-resume sequencing.
  *
- * Two soft ascending sine tones with a gentle envelope — deliberately
- * restrained (quiet, sub-second, no percussion/noise) to read as "premium
- * assistant initialization" rather than a game/notification sound.
+ * Every individual tone is short (well under half a second) and quiet —
+ * this is a handful of sparse cues spread across ~8s, not a soundtrack.
  */
-export function playStartupChime(): void {
+export function createBootAudio(): BootAudio {
   try {
     const AudioCtx =
       window.AudioContext ??
       (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
+    if (!AudioCtx) return NOOP_BOOT_AUDIO;
 
     const ctx = new AudioCtx();
-    const now = ctx.currentTime;
+    let disposed = false;
 
-    const master = ctx.createGain();
-    master.gain.value = 0.16; // subtle — not loud, not annoying
-    master.connect(ctx.destination);
-
-    const tone = (freq: number, start: number, duration: number) => {
+    const tone = (freq: number, startOffset: number, duration: number, peakGain: number) => {
+      if (disposed) return;
+      const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, now + start);
-      gain.gain.linearRampToValueAtTime(1, now + start + 0.04); // soft attack
-      gain.gain.exponentialRampToValueAtTime(0.001, now + start + duration); // smooth decay
+      gain.gain.setValueAtTime(0, now + startOffset);
+      gain.gain.linearRampToValueAtTime(peakGain, now + startOffset + 0.04); // soft attack
+      gain.gain.exponentialRampToValueAtTime(0.001, now + startOffset + duration); // smooth decay
       osc.connect(gain);
-      gain.connect(master);
-      osc.start(now + start);
-      osc.stop(now + start + duration + 0.02);
+      gain.connect(ctx.destination);
+      osc.start(now + startOffset);
+      osc.stop(now + startOffset + duration + 0.02);
     };
 
-    tone(523.25, 0, 0.32); // C5
-    tone(783.99, 0.14, 0.4); // G5 — gentle ascending interval
-
-    // Release the context once the tail has finished; nothing keeps it
-    // alive otherwise, and dangling AudioContexts warn in some browsers.
-    setTimeout(() => ctx.close().catch(() => {}), 700);
+    return {
+      playOpening: () => {
+        // Low tone rising into a mid tone — the "power coming on" beat.
+        tone(220, 0, 0.5, 0.14); // A3
+        tone(329.63, 0.22, 0.55, 0.13); // E4
+      },
+      playTick: () => {
+        // One quiet, short blip per system reaching its "online" state.
+        tone(659.25, 0, 0.16, 0.07); // E5
+      },
+      playConfirmation: () => {
+        // Brief ascending arpeggio — the final "all clear" cue.
+        tone(523.25, 0, 0.3, 0.12); // C5
+        tone(659.25, 0.09, 0.32, 0.12); // E5
+        tone(783.99, 0.18, 0.4, 0.13); // G5
+      },
+      dispose: () => {
+        if (disposed) return;
+        disposed = true;
+        ctx.close().catch(() => {});
+      },
+    };
   } catch {
     // Never let a decorative sound break app startup.
+    return NOOP_BOOT_AUDIO;
   }
 }
