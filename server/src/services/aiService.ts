@@ -1,5 +1,6 @@
 import { env, capabilities } from "../env.js";
 import type { ConversationMessage, Memory } from "../types.js";
+import type { SearchResult } from "./searchService.js";
 
 export const aiUnavailableMessage = "AI core is temporarily unavailable.";
 
@@ -91,8 +92,14 @@ Absolute rule — never fabricate capability or action:
   control devices, or take real-world actions unless a result is explicitly given to you in
   this context. Never say "I've taken care of that", "I've opened it", "I've set a reminder",
   or similar unless the action's result is actually present in the conversation.
-- If you lack live web access for a query, say so plainly rather than inventing current facts,
-  prices, news, or dates.
+- You do not have general live web access. For most questions needing current information
+  (today's news, weather, latest events, current facts, recent sports results, prices), the
+  system automatically attaches a "Live web search results" section below when it detects the
+  need — use those naturally if present and relevant, citing sources by title/URL where it
+  helps. If no such section is present for a question that clearly needs current information,
+  say plainly that you don't have live access to that right now rather than inventing current
+  facts, prices, news, or dates. Never mention how the search results were obtained or name
+  any search/data provider — treat them as information you looked into, not as a named tool.
 - If asked to do something outside your actual capability, say so directly and, if useful,
   suggest what the user could do instead.
 
@@ -103,13 +110,26 @@ Memory:
 - Use known facts below naturally when relevant to the request. Do not recite the list
   unprompted or announce that you are "checking memory."`;
 
-function buildSystemPrompt(memories: Memory[]): string {
-  if (memories.length === 0) return SYSTEM_PROMPT;
-  const facts = memories
-    .slice(0, 30)
-    .map((m) => `- (${m.category}) ${m.key}: ${m.value}`)
-    .join("\n");
-  return `${SYSTEM_PROMPT}\n\nKnown facts about the user, from persistent memory:\n${facts}\n\nUse these naturally when relevant. Do not recite the whole list unprompted.`;
+function buildSystemPrompt(memories: Memory[], searchResults: SearchResult[]): string {
+  let prompt = SYSTEM_PROMPT;
+
+  if (memories.length > 0) {
+    const facts = memories
+      .slice(0, 30)
+      .map((m) => `- (${m.category}) ${m.key}: ${m.value}`)
+      .join("\n");
+    prompt += `\n\nKnown facts about the user, from persistent memory:\n${facts}\n\nUse these naturally when relevant. Do not recite the whole list unprompted.`;
+  }
+
+  if (searchResults.length > 0) {
+    const results = searchResults
+      .slice(0, 5)
+      .map((r) => `- ${r.title} (${r.url}): ${r.snippet}`)
+      .join("\n");
+    prompt += `\n\nLive web search results for this query:\n${results}\n\nUse these to ground your answer if they're relevant; ignore them if they aren't. Do not name the search provider or describe how these were retrieved.`;
+  }
+
+  return prompt;
 }
 
 export function isAiAvailable(): boolean {
@@ -119,14 +139,15 @@ export function isAiAvailable(): boolean {
 export async function generateReply(
   userMessage: string,
   history: ConversationMessage[],
-  memories: Memory[]
+  memories: Memory[],
+  searchResults: SearchResult[] = []
 ): Promise<string> {
   if (!env.OPENROUTER_API_KEY) {
     throw new Error(aiUnavailableMessage);
   }
 
   const messages = [
-    { role: "system", content: buildSystemPrompt(memories) },
+    { role: "system", content: buildSystemPrompt(memories, searchResults) },
     ...history.map((m) => ({
       role: m.role === "assistant" ? "assistant" : "user",
       content: m.message,

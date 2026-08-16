@@ -7,6 +7,7 @@ import {
   memoryUnavailableMessage,
 } from "../services/memoryService.js";
 import { tryHandleCommand } from "../services/commandService.js";
+import { searchWeb, needsWebSearch, isSearchAvailable } from "../services/searchService.js";
 
 export const chatRouter = Router();
 
@@ -57,7 +58,21 @@ chatRouter.post("/", async (req, res) => {
         : Promise.resolve([]),
     ]);
 
-    const reply = await generateReply(message, history, memories);
+    // Live web search augments the AI's context for questions that need
+    // current/external information (news, weather, live scores/prices,
+    // explicit search requests). Never lets a search failure or an
+    // unconfigured provider break the chat reply — it just proceeds
+    // without search grounding, same graceful-degradation shape as the
+    // memory/history reads above.
+    const searchResults =
+      isSearchAvailable() && needsWebSearch(message)
+        ? await searchWeb(message).catch((err) => {
+            console.error("searchWeb failed, continuing without live search:", err);
+            return [];
+          })
+        : [];
+
+    const reply = await generateReply(message, history, memories, searchResults);
     await appendMessage(session, "assistant", reply).catch(() => {});
 
     res.json({ reply, source: "ai" });

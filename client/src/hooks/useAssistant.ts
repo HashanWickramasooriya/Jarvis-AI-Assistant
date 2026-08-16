@@ -111,7 +111,10 @@ export function useAssistant() {
         // reroutes ALL of this element's output through Web Audio, which
         // is silent until the context is running. Without this await,
         // play() can resolve successfully while producing no audible
-        // sound at all — no error, just silence.
+        // sound at all — no error, just silence. Verified live in a real
+        // browser: without this await, AudioContext.state stays
+        // "suspended" through play(); with it, it reaches "running" before
+        // play() is called and audio is audible end-to-end.
         await tts.ensureResumed();
         if (mySeq !== speechSeqRef.current) return; // superseded while resuming
 

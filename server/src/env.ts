@@ -37,8 +37,7 @@ export const env = {
   SUPABASE_URL: optional("SUPABASE_URL") ?? optional("VITE_SUPABASE_URL"),
   SUPABASE_SERVICE_ROLE_KEY: optional("SUPABASE_SERVICE_ROLE_KEY"),
 
-  SEARCH_PROVIDER_API_KEY: optional("SEARCH_PROVIDER_API_KEY"),
-  SEARCH_PROVIDER_URL: optional("SEARCH_PROVIDER_URL"),
+  TAVILY_API_KEY: optional("TAVILY_API_KEY"),
 
   CORS_ORIGIN: optional("CORS_ORIGIN") ?? "http://localhost:5173",
 };
@@ -48,5 +47,5 @@ export const capabilities = {
   stt: Boolean(env.GROQ_API_KEY),
   tts: Boolean(env.GROQ_API_KEY),
   memory: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
-  search: Boolean(env.SEARCH_PROVIDER_API_KEY && env.SEARCH_PROVIDER_URL),
+  search: Boolean(env.TAVILY_API_KEY),
 };
