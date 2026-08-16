@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./env.js";
+import { deviceIdMiddleware } from "./middleware/deviceId.js";
 import { statusRouter } from "./routes/status.js";
 import { chatRouter } from "./routes/chat.js";
 import { sttRouter } from "./routes/stt.js";
@@ -20,6 +21,7 @@ export const app = express();
 
 app.use(cors({ origin: env.CORS_ORIGIN }));
 app.use(express.json({ limit: "2mb" }));
+app.use(deviceIdMiddleware);
 
 app.use("/api/status", statusRouter);
 app.use("/api/chat", chatRouter);

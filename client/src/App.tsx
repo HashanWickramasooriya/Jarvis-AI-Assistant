@@ -85,7 +85,7 @@ function App() {
   );
 
   return (
-    <div className="safe-x flex h-screen w-screen flex-col overflow-hidden bg-[var(--jarvis-bg)]">
+    <div className="safe-x flex min-h-dvh w-screen flex-col bg-[var(--jarvis-bg)] lg:h-dvh lg:overflow-hidden">
       <header className="safe-top flex shrink-0 items-center justify-between border-b border-[var(--jarvis-border)] px-3 py-2.5 sm:px-6 sm:py-3">
         <div className="flex items-baseline gap-2">
           <span className="text-xs font-semibold tracking-[0.3em] text-[var(--jarvis-text)] sm:text-sm sm:tracking-[0.35em]">
@@ -182,7 +182,7 @@ function App() {
           )}
         </main>
       ) : (
-        <main className="safe-bottom flex flex-1 flex-col gap-2.5 overflow-hidden p-2.5">
+        <main className="safe-bottom flex flex-1 flex-col gap-2.5 p-2.5">
           <StatusStrip />
 
           <div className="flex shrink-0 flex-col items-center gap-2">

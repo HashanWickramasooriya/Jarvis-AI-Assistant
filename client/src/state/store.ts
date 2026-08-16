@@ -5,7 +5,14 @@ function uid(): string {
   return crypto.randomUUID();
 }
 
-function getSessionId(): string {
+// Persisted once per browser (localStorage survives restarts, unlike
+// sessionStorage/in-memory state) and reused on every visit; a cleared
+// localStorage yields a fresh id, which is treated as a new device. This
+// same value doubles as the device identity sent with memory requests
+// (see client/src/lib/api.ts) — conversations and memories are both scoped
+// to "this browser", so one persisted id serves both without duplicating
+// the generation/storage logic.
+export function getSessionId(): string {
   const key = "jarvis_session_id";
   let id = localStorage.getItem(key);
   if (!id) {

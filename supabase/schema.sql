@@ -20,17 +20,27 @@ create index if not exists idx_conversations_session_created
 -- =========================================================
 -- memories: long-term persistent facts about the user
 -- =========================================================
+-- device_id identifies the browser/device the memory belongs to (see
+-- server/src/middleware/deviceId.ts and client/src/state/store.ts). There
+-- is no authenticated user system in this app, so device_id — a random id
+-- generated on first visit and persisted in that browser's localStorage —
+-- is the isolation boundary: memory created on one device must never be
+-- readable from another. The uniqueness constraint is scoped per-device
+-- (not globally) so two devices can each have their own, independent
+-- "identity/name" or "preference/favorite_color" fact.
 create table if not exists memories (
   id uuid primary key default gen_random_uuid(),
+  device_id text not null,
   category text not null,          -- e.g. identity, preference, project, fact
   key text not null,
   value text not null,
   importance smallint not null default 1, -- 1 (low) .. 5 (high)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (category, key)
+  unique (device_id, category, key)
 );
 
+create index if not exists idx_memories_device on memories (device_id);
 create index if not exists idx_memories_category on memories (category);
 create index if not exists idx_memories_importance on memories (importance desc);
 

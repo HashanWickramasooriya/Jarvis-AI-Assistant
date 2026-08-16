@@ -72,7 +72,14 @@ body {
   background-position: center;
   color: var(--jarvis-text);
   font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow: hidden;
+  /* Horizontal scroll is never wanted (the HUD grid/panels are fixed-width
+     by design). Vertical must stay scrollable: on desktop the app shell
+     below is sized to exactly fill the viewport so this never engages, but
+     on small/short mobile viewports (address-bar chrome, landscape, large
+     text/zoom) the shell's content can legitimately exceed the visible
+     height, and there must be a way to reach it. */
+  overflow-x: hidden;
+  overflow-y: auto;
   font-feature-settings: "tnum" 1;
 }
 

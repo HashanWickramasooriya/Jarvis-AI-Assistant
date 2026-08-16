@@ -10,6 +10,7 @@ export interface ConversationMessage {
 
 export interface Memory {
   id?: string;
+  device_id: string;
   category: string;
   key: string;
   value: string;

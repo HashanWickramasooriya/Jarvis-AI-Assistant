@@ -21,7 +21,8 @@ export interface CommandResult {
  */
 export async function tryHandleCommand(
   text: string,
-  sessionId: string
+  sessionId: string,
+  deviceId: string | null
 ): Promise<CommandResult> {
   const t = text.trim().toLowerCase();
 
@@ -69,14 +70,14 @@ export async function tryHandleCommand(
   }
 
   if (/^clear (all (my )?memor(y|ies)|memory)\.?$/.test(t)) {
-    if (!isMemoryAvailable()) return { handled: true, reply: memoryUnavailableMessage };
-    await clearAllMemories();
+    if (!isMemoryAvailable() || !deviceId) return { handled: true, reply: memoryUnavailableMessage };
+    await clearAllMemories(deviceId);
     return { handled: true, reply: "All stored memories have been cleared." };
   }
 
   if (/^(show|list) (my )?memor(y|ies)\.?$/.test(t)) {
-    if (!isMemoryAvailable()) return { handled: true, reply: memoryUnavailableMessage };
-    const memories = await listMemories();
+    if (!isMemoryAvailable() || !deviceId) return { handled: true, reply: memoryUnavailableMessage };
+    const memories = await listMemories(deviceId);
     if (memories.length === 0) {
       return { handled: true, reply: "I don't have any stored memories yet." };
     }
@@ -88,14 +89,14 @@ export async function tryHandleCommand(
 
   const forgetMatch = t.match(/^forget (my |about )?(.+?)\.?$/);
   if (forgetMatch) {
-    if (!isMemoryAvailable()) return { handled: true, reply: memoryUnavailableMessage };
+    if (!isMemoryAvailable() || !deviceId) return { handled: true, reply: memoryUnavailableMessage };
     const topic = forgetMatch[2].trim();
-    const memories = await listMemories();
+    const memories = await listMemories(deviceId);
     const match = memories.find(
       (m) => m.key.toLowerCase().includes(topic) || topic.includes(m.key.toLowerCase())
     );
     if (match) {
-      await forgetFact(match.category, match.key);
+      await forgetFact(deviceId, match.category, match.key);
       return { handled: true, reply: `Understood. I've forgotten your ${match.key}.` };
     }
     return { handled: true, reply: `I don't have anything stored about "${topic}".` };
@@ -103,10 +104,10 @@ export async function tryHandleCommand(
 
   const rememberMatch = text.match(/^remember (that )?(.+)$/i);
   if (rememberMatch) {
-    if (!isMemoryAvailable()) return { handled: true, reply: memoryUnavailableMessage };
+    if (!isMemoryAvailable() || !deviceId) return { handled: true, reply: memoryUnavailableMessage };
     const fact = rememberMatch[2].trim();
     const parsed = parseFact(fact);
-    await rememberFact(parsed.category, parsed.key, parsed.value, 4);
+    await rememberFact(deviceId, parsed.category, parsed.key, parsed.value, 4);
     return { handled: true, reply: "Understood. I'll remember that." };
   }
 

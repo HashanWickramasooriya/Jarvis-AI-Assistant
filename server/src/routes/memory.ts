@@ -6,22 +6,31 @@ import {
   clearAllMemories,
   isMemoryAvailable,
   memoryUnavailableMessage,
+  deviceIdMissingMessage,
 } from "../services/memoryService.js";
 
 export const memoryRouter = Router();
 
-memoryRouter.get("/", async (_req, res) => {
+memoryRouter.get("/", async (req, res) => {
   if (!isMemoryAvailable()) {
     return res.status(502).json({ error: memoryUnavailableMessage });
   }
+  // No device id yet (e.g. very first request before the client has
+  // finished writing it to localStorage): nothing to show, not an error.
+  if (!req.deviceId) {
+    return res.json({ memories: [] });
+  }
   try {
-    res.json({ memories: await listMemories() });
+    res.json({ memories: await listMemories(req.deviceId) });
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : memoryUnavailableMessage });
   }
 });
 
 memoryRouter.post("/", async (req, res) => {
+  if (!req.deviceId) {
+    return res.status(400).json({ error: deviceIdMissingMessage });
+  }
   try {
     const { category, key, value, importance } = req.body as {
       category?: string;
@@ -32,16 +41,19 @@ memoryRouter.post("/", async (req, res) => {
     if (!category || !key || !value) {
       return res.status(400).json({ error: "category, key, and value are required" });
     }
-    const memory = await rememberFact(category, key, value, importance ?? 3);
+    const memory = await rememberFact(req.deviceId, category, key, value, importance ?? 3);
     res.json({ memory });
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : memoryUnavailableMessage });
   }
 });
 
-memoryRouter.delete("/all", async (_req, res) => {
+memoryRouter.delete("/all", async (req, res) => {
+  if (!req.deviceId) {
+    return res.status(400).json({ error: deviceIdMissingMessage });
+  }
   try {
-    await clearAllMemories();
+    await clearAllMemories(req.deviceId);
     res.json({ ok: true });
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : memoryUnavailableMessage });
@@ -49,8 +61,11 @@ memoryRouter.delete("/all", async (_req, res) => {
 });
 
 memoryRouter.delete("/:id", async (req, res) => {
+  if (!req.deviceId) {
+    return res.status(400).json({ error: deviceIdMissingMessage });
+  }
   try {
-    await forgetMemoryById(req.params.id);
+    await forgetMemoryById(req.deviceId, req.params.id);
     res.json({ ok: true });
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : memoryUnavailableMessage });
