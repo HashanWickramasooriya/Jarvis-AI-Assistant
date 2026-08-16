@@ -1,7 +1,28 @@
 import type { ChatMessage, Memory, ServiceStatus } from "../types";
 import { getSessionId } from "../state/store";
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+// VITE_API_BASE_URL is baked into the build at build time, so a stray value
+// left set in a hosting dashboard (e.g. Netlify's env vars, easy to forget
+// after local testing) survives into production and silently sends every
+// real visitor's browser to a URL that only exists on the developer's own
+// machine — no error, just every request failing to connect. Guard against
+// that class of misconfiguration at runtime: if the configured base points
+// at localhost/127.0.0.1 but the page itself is not running on localhost,
+// it's certainly a leftover dev value, not a real split-deployment target —
+// fall back to same-origin (the correct choice whenever frontend and
+// backend are served from the same site, which is this project's default).
+function resolveApiBase(): string {
+  const configured = import.meta.env.VITE_API_BASE_URL ?? "";
+  if (!configured) return "";
+  const pageIsLocal =
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
+  const configuredIsLocal = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(configured);
+  if (configuredIsLocal && !pageIsLocal) return "";
+  return configured;
+}
+
+const BASE = resolveApiBase();
 
 // Identifies "this browser" to the backend so memory/conversations stay
 // device-scoped (never shared across a laptop, phone, etc.) — see
