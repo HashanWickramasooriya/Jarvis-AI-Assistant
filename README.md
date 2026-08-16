@@ -1,4 +1,3 @@
-ඔව්. මේක GitHub README.md එකට direct copy-paste කරන්න පුළුවන් full version එකක්. Code block එක ඇතුළේ තියෙන ඔක්කොම එකවර copy කරන්න.
 
 # J.A.R.V.I.S — AI Voice Assistant
 
