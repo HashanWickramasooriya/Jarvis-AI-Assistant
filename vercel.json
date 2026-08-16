@@ -1,19 +1,8 @@
 {
-  "builds": [
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
-    },
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "api/index.ts" },
-    { "src": "/assets/(.*)", "dest": "client/dist/assets/$1" },
-    { "src": "/favicon.svg", "dest": "client/dist/favicon.svg" },
-    { "src": "/(.*)", "dest": "client/dist/index.html" }
+  "buildCommand": "npm run build",
+  "outputDirectory": "client/dist",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

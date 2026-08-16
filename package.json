@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "J.A.R.V.I.S. personal AI system — monorepo root. Used by Vercel (api/index.ts) and Netlify (netlify/functions/api.ts) to resolve dependencies for the serverless API function; local development uses client/ and server/ directly (see README/report for dev commands).",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "npm install --prefix client && npm run build --prefix client",
     "typecheck": "tsc --noEmit"
