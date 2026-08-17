@@ -26,10 +26,8 @@ function optional(name: string): string | undefined {
 export const env = {
   PORT: Number(process.env.PORT ?? 8787),
 
-  OPENROUTER_API_KEY: optional("OPENROUTER_API_KEY"),
-  OPENROUTER_MODEL: optional("OPENROUTER_MODEL") ?? "google/gemini-3.7-flash",
-
   GROQ_API_KEY: optional("GROQ_API_KEY"),
+  GROQ_MODEL: optional("GROQ_MODEL") ?? "openai/gpt-oss-120b",
   GROQ_STT_MODEL: optional("GROQ_STT_MODEL") ?? "whisper-large-v3-turbo",
   GROQ_TTS_MODEL: optional("GROQ_TTS_MODEL") ?? "canopylabs/orpheus-v1-english",
   GROQ_TTS_VOICE: optional("GROQ_TTS_VOICE") ?? "troy",
@@ -43,7 +41,7 @@ export const env = {
 };
 
 export const capabilities = {
-  ai: Boolean(env.OPENROUTER_API_KEY),
+  ai: Boolean(env.GROQ_API_KEY),
   stt: Boolean(env.GROQ_API_KEY),
   tts: Boolean(env.GROQ_API_KEY),
   memory: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),

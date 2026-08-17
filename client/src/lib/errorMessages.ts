@@ -9,7 +9,7 @@ export function toHudMessage(err: unknown, fallback = "SYSTEM FAULT"): string {
   if (lower.includes("failed to fetch") || lower.includes("networkerror") || lower.includes("network request failed")) {
     return "CONNECTION LOST — backend unreachable.";
   }
-  if (lower.includes("ai core is temporarily unavailable") || lower.includes("openrouter")) {
+  if (lower.includes("ai core is temporarily unavailable")) {
     return "AI CORE TEMPORARILY UNAVAILABLE.";
   }
   if (lower.includes("cloud memory is currently offline")) {

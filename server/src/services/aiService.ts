@@ -142,7 +142,7 @@ export async function generateReply(
   memories: Memory[],
   searchResults: SearchResult[] = []
 ): Promise<string> {
-  if (!env.OPENROUTER_API_KEY) {
+  if (!env.GROQ_API_KEY) {
     throw new Error(aiUnavailableMessage);
   }
 
@@ -155,25 +155,52 @@ export async function generateReply(
     { role: "user", content: userMessage },
   ];
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${env.GROQ_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": env.CORS_ORIGIN,
-      "X-Title": "JARVIS",
     },
     body: JSON.stringify({
-      model: env.OPENROUTER_MODEL,
+      model: env.GROQ_MODEL,
       messages,
       temperature: 0.6,
       max_tokens: 700,
+      // Reasoning-family Groq models (e.g. openai/gpt-oss-*) spend hidden
+      // "reasoning tokens" before producing content, which eats into this
+      // account's tokens-per-minute budget fast. "low" cuts that overhead
+      // substantially (measured ~4 vs ~17 reasoning tokens on a trivial
+      // prompt) with no visible quality loss for JARVIS's concise persona.
+      // Ignored harmlessly by non-reasoning models.
+      reasoning_effort: "low",
     }),
   });
 
   if (!response.ok) {
     const body = await response.text().catch(() => "");
-    throw new Error(`OpenRouter error ${response.status}: ${body.slice(0, 500)}`);
+    // Log the real provider error server-side only — never forward raw
+    // error text (which could include request/account details) to the
+    // client, and never let it include the API key.
+    console.error(`[AI] Groq chat error ${response.status}: ${body.slice(0, 500)}`);
+
+    switch (response.status) {
+      case 401:
+      case 403:
+        console.error("[AI] Groq authentication/permission failure — check GROQ_API_KEY.");
+        break;
+      case 429:
+        console.error("[AI] Groq rate limit or quota exceeded.");
+        break;
+      case 400:
+        console.error("[AI] Groq rejected the request (invalid model/format).");
+        break;
+      default:
+        if (response.status >= 500) {
+          console.error("[AI] Groq server-side failure.");
+        }
+    }
+
+    throw new Error(aiUnavailableMessage);
   }
 
   const data = (await response.json()) as {

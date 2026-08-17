@@ -630,11 +630,8 @@ PORT=8787
 CORS_ORIGIN=http://localhost:5173
 
 
-OPENROUTER_API_KEY=your_openrouter_key
-OPENROUTER_MODEL=your_model
-
-
 GROQ_API_KEY=your_groq_key
+GROQ_MODEL=your_chat_model
 GROQ_STT_MODEL=your_stt_model
 GROQ_TTS_MODEL=your_tts_model
 GROQ_TTS_VOICE=your_voice
